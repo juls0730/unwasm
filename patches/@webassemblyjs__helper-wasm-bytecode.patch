@@ -1,8 +1,8 @@
 diff --git a/lib/index.js b/lib/index.js
-index 7390d66de519bc3c9a8b0cadb6ff35176d54a32d..b0a829afd5f8c3c54c91b9639aaee16d02d698c8 100644
+index f51d5a2..7b49163 100644
 --- a/lib/index.js
 +++ b/lib/index.js
-@@ -401,7 +401,35 @@ var symbolsByByte = {
+@@ -411,7 +411,291 @@ var symbolsByByte = {
    0xfe4b: createSymbolObject("atomic.rmw16_u.cmpxchg_u", "i32", 1),
    0xfe4c: createSymbolObject("atomic.rmw8_u.cmpxchg_u", "i64", 1),
    0xfe4d: createSymbolObject("atomic.rmw16_u.cmpxchg_u", "i64", 1),
@@ -22,6 +22,262 @@ index 7390d66de519bc3c9a8b0cadb6ff35176d54a32d..b0a829afd5f8c3c54c91b9639aaee16d
 +  0xa:   createSymbolObject("throw_ref",   "exnref",0),  // rethrow from stack (no immediate)
 +  0xc:   createSymbolObject("br",          "label", 1),  // labelidx immediate
 +  0x18:  createSymbolObject("delegate",    "label", 1),  // labelidx immediate
++
++  // SIMD128 Instructions
++  0xFD00: createSymbolObject("load", "v128", 2), // memarg
++  0xFD01: createSymbolObject("load8x8_s", "v128", 2), // memarg
++  0xFD02: createSymbolObject("load8x8_u", "v128", 2), // memarg
++  0xFD03: createSymbolObject("load16x4_s", "v128", 2), // memarg
++  0xFD04: createSymbolObject("load16x4_u", "v128", 2), // memarg
++  0xFD05: createSymbolObject("load32x2_s", "v128", 2), // memarg
++  0xFD06: createSymbolObject("load32x2_u", "v128", 2), // memarg
++  0xFD07: createSymbolObject("load8_splat", "v128", 2), // memarg
++  0xFD08: createSymbolObject("load16_splat", "v128", 2), // memarg
++  0xFD09: createSymbolObject("load32_splat", "v128", 2), // memarg
++  0xFD0A: createSymbolObject("load64_splat", "v128", 2), // memarg
++  0xFD0B: createSymbolObject("store", "v128", 2), // memarg
++  0XFD5C: createSymbolObject("load32_zero", "v128", 2), // memarg
++  0XFD5D: createSymbolObject("load64_zero", "v128", 2), // memarg
++
++  0xFD54: createSymbolObject("load8_lane", "v128", 3), // memarg laneidx
++  0xFD55: createSymbolObject("load16_lane", "v128", 3), // memarg laneidx
++  0xFD56: createSymbolObject("load32_lane", "v128", 3), // memarg laneidx
++  0xFD57: createSymbolObject("load64_lane", "v128", 3), // memarg laneidx
++  0xFD58: createSymbolObject("store8_lane", "v128", 3), // memarg laneidx
++  0xFD59: createSymbolObject("store16_lane", "v128", 3), // memarg laneidx
++  0xFD5A: createSymbolObject("store32_lane", "v128", 3), // memarg laneidx
++  0xFD5B: createSymbolObject("store64_lane", "v128", 3), // memarg laneidx
++
++  0xFD0C: createSymbolObject("const", "v128", 16), // 16 immediates
++
++  0xFD0D: createSymbolObject("shuffle", "i8x16", 16), // 16 lane indices
++  0xFD0E: createSymbolObject("swizzle", "i8x16", 16), // 16 lane indices
++
++  0xFD15: createSymbolObject("extract_lane_s", "i8x16", 1), // lane indice
++  0xFD16: createSymbolObject("extract_lane_u", "i8x16", 1), // lane indice
++  0xFD17: createSymbolObject("replace_lane", "i8x16", 1), // lane indice
++  0xFD18: createSymbolObject("extract_lane_s", "i16x8", 1), // lane indice
++  0xFD19: createSymbolObject("extract_lane_u", "i16x8", 1), // lane indice
++  0xFD1A: createSymbolObject("replace_lane", "i16x8", 1), // lane indice
++  0xFD1B: createSymbolObject("extract_lane", "i32x4", 1), // lane indice
++  0xFD1C: createSymbolObject("replace_lane", "i32x4", 1), // lane indice
++  0xFD1D: createSymbolObject("extract_lane", "i64x2", 1), // lane indice
++  0xFD1E: createSymbolObject("replace_lane", "i64x2", 1), // lane indice
++  0xFD1F: createSymbolObject("extract_lane", "f32x4", 1), // lane indice
++  0xFD20: createSymbolObject("replace_lane", "f32x4", 1), // lane indice
++  0xFD21: createSymbolObject("extract_lane", "f64x2", 1), // lane indice
++  0xFD22: createSymbolObject("replace_lane", "f64x2", 1), // lane indice
++
++  0xFD0F: createSymbolObject("splat", "i8x16", 0),
++  0xFD10: createSymbolObject("splat", "i16x8", 0),
++  0xFD11: createSymbolObject("splat", "i32x4", 0),
++  0xFD12: createSymbolObject("splat", "i64x2", 0),
++  0xFD13: createSymbolObject("splat", "f32x4", 0),
++  0xFD14: createSymbolObject("splat", "f64x2", 0),
++
++  0xFD23: createSymbolObject("eq", "i8x16", 0),
++  0xFD24: createSymbolObject("ne", "i8x16", 0),
++  0xFD25: createSymbolObject("lt_s", "i8x16", 0),
++  0xFD26: createSymbolObject("lt_u", "i8x16", 0),
++  0xFD27: createSymbolObject("gt_s", "i8x16", 0),
++  0xFD28: createSymbolObject("gt_u", "i8x16", 0),
++  0xFD29: createSymbolObject("le_s", "i8x16", 0),
++  0xFD2A: createSymbolObject("le_u", "i8x16", 0),
++  0xFD2B: createSymbolObject("ge_s", "i8x16", 0),
++  0xFD2C: createSymbolObject("ge_u", "i8x16", 0),
++  0xFD2D: createSymbolObject("eq", "i16x8", 0),
++  0xFD2E: createSymbolObject("ne", "i16x8", 0),
++  0xFD2F: createSymbolObject("lt_s", "i16x8", 0),
++  0xFD30: createSymbolObject("lt_u", "i16x8", 0),
++  0xFD31: createSymbolObject("gt_s", "i16x8", 0),
++  0xFD32: createSymbolObject("gt_u", "i16x8", 0),
++  0xFD33: createSymbolObject("le_s", "i16x8", 0),
++  0xFD34: createSymbolObject("le_u", "i16x8", 0),
++  0xFD35: createSymbolObject("ge_s", "i16x8", 0),
++  0xFD36: createSymbolObject("ge_u", "i16x8", 0),
++  0xFD37: createSymbolObject("eq", "i32x4", 0),
++  0xFD38: createSymbolObject("ne", "i32x4", 0),
++  0xFD39: createSymbolObject("lt_s", "i32x4", 0),
++  0xFD3A: createSymbolObject("lt_u", "i32x4", 0),
++  0xFD3B: createSymbolObject("gt_s", "i32x4", 0),
++  0xFD3C: createSymbolObject("gt_u", "i32x4", 0),
++  0xFD3D: createSymbolObject("le_s", "i32x4", 0),
++  0xFD3E: createSymbolObject("le_u", "i32x4", 0),
++  0xFD3F: createSymbolObject("ge_s", "i32x4", 0),
++  0xFD40: createSymbolObject("ge_u", "i32x4", 0),
++  0xFDD6: createSymbolObject("eq", "i64x2", 0),
++  0xFDD7: createSymbolObject("ne", "i64x2", 0),
++  0xFDD8: createSymbolObject("lt_s", "i64x2", 0),
++  0xFDD9: createSymbolObject("gt_s", "i64x2", 0),
++  0xFDDA: createSymbolObject("le_s", "i64x2", 0),
++  0xFDDB: createSymbolObject("gt_s", "i64x2", 0),
++
++  0xFD41: createSymbolObject("eq", "f32x4", 0),
++  0xFD42: createSymbolObject("ne", "f32x4", 0),
++  0xFD43: createSymbolObject("lt", "f32x4", 0),
++  0xFD44: createSymbolObject("gt", "f32x4", 0),
++  0xFD45: createSymbolObject("le", "f32x4", 0),
++  0xFD46: createSymbolObject("ge", "f32x4", 0),
++  0xFD47: createSymbolObject("eq", "f64x2", 0),
++  0xFD48: createSymbolObject("ne", "f64x2", 0),
++  0xFD49: createSymbolObject("lt", "f64x2", 0),
++  0xFD4A: createSymbolObject("gt", "f64x2", 0),
++  0xFD4B: createSymbolObject("le", "f64x2", 0),
++  0xFD4C: createSymbolObject("ge", "f64x2", 0),
++
++  0xFD4D: createSymbolObject("not", "v128", 0),
++  0xFD4E: createSymbolObject("and", "v128", 0),
++  0xFD4F: createSymbolObject("andnot", "v128", 0),
++  0xFD50: createSymbolObject("or", "v128", 0),
++  0xFD51: createSymbolObject("xor", "v128", 0),
++  0xFD52: createSymbolObject("bitselect", "v128", 0),
++  0xFD53: createSymbolObject("any_true", "v128", 0),
++
++  0xFD60: createSymbolObject("abs", "i8x16", 0),
++  0xFD61: createSymbolObject("neg", "i8x16", 0),
++  0xFD62: createSymbolObject("popcnt", "i8x16", 0),
++  0xFD63: createSymbolObject("all_true", "i8x16", 0),
++  0xFD64: createSymbolObject("bitmask", "i8x16", 0),
++  0xFD65: createSymbolObject("narrow_16x8_s", "i8x16", 0),
++  0xFD66: createSymbolObject("narrow_16x8_u", "i8x16", 0),
++  0xFD6B: createSymbolObject("shl", "i8x16", 0),
++  0xFD6C: createSymbolObject("shr_s", "i8x16", 0),
++  0xFD6D: createSymbolObject("shr_u", "i8x16", 0),
++  0xFD6E: createSymbolObject("add", "i8x16", 0),
++  0xFD6F: createSymbolObject("add_sat_s", "i8x16", 0),
++  0xFD70: createSymbolObject("add_sat_u", "i8x16", 0),
++  0xFD71: createSymbolObject("sub", "i8x16", 0),
++  0xFD72: createSymbolObject("sub_sat_s", "i8x16", 0),
++  0xFD73: createSymbolObject("sub_sat_u", "i8x16", 0),
++  0xFD76: createSymbolObject("min_s", "i8x16", 0),
++  0xFD77: createSymbolObject("min_u", "i8x16", 0),
++  0xFD78: createSymbolObject("max_s", "i8x16", 0),
++  0xFD79: createSymbolObject("max_u", "i8x16", 0),
++  0xFD7B: createSymbolObject("avgr_u", "i8x16", 0),
++
++  0xFD7C: createSymbolObject("extadd_pairwise_s_i8x16", "i16x8", 0),
++  0xFD7D: createSymbolObject("extadd_pairwise_u_i8x16", "i16x8", 0),
++  0xFD80: createSymbolObject("abs", "i16x8", 0),
++  0xFD81: createSymbolObject("neg", "i16x8", 0),
++  0xFD83: createSymbolObject("all_true", "i16x8", 0),
++  0xFD84: createSymbolObject("bitmask", "i16x8", 0),
++  0xFD85: createSymbolObject("narrow_i32x4_s", "i16x8", 0),
++  0xFD86: createSymbolObject("narrow_i32x4_u", "i16x8", 0),
++  0xFD87: createSymbolObject("extend_low_s_i8x16", "i16x8", 0),
++  0xFD88: createSymbolObject("extend_high_s_i8x16", "i16x8", 0),
++  0xFD89: createSymbolObject("extend_low_u_i8x16", "i16x8", 0),
++  0xFD8A: createSymbolObject("extend_high_u_i8x16", "i16x8", 0),
++  0xFD8B: createSymbolObject("shl", "i16x8", 0),
++  0xFD8C: createSymbolObject("shr_s", "i16x8", 0),
++  0xFD8D: createSymbolObject("shr_u", "i16x8", 0),
++  0xFD82: createSymbolObject("q15mulr_sat_s", "i16x8", 0),
++  0xFD8E: createSymbolObject("add", "i16x8", 0),
++  0xFD8F: createSymbolObject("add_sat_s", "i16x8", 0),
++  0xFD90: createSymbolObject("add_sat_u", "i16x8", 0),
++  0xFD91: createSymbolObject("sub", "i16x8", 0),
++  0xFD92: createSymbolObject("sub_sat_s", "i16x8", 0),
++  0xFD93: createSymbolObject("sub_sat_u", "i16x8", 0),
++  0xFD95: createSymbolObject("mul", "i16x8", 0),
++  0xFD96: createSymbolObject("min_s", "i16x8", 0),
++  0xFD97: createSymbolObject("min_u", "i16x8", 0),
++  0xFD98: createSymbolObject("max_s", "i16x8", 0),
++  0xFD99: createSymbolObject("max_u", "i16x8", 0),
++  0xFD9A: illegalop,
++  0xFD9B: createSymbolObject("avgr_u", "i16x8", 0),
++  0xFD9C: createSymbolObject("extmul_low_s_i8x16", "i16x8", 0),
++  0xFD9D: createSymbolObject("extmul_high_s_i8x16", "i16x8", 0),
++  0xFD9E: createSymbolObject("extmul_low_u_i8x16", "i16x8", 0),
++  0xFD9F: createSymbolObject("extmul_high_u_i8x16", "i16x8", 0),
++
++  0xFD7E: createSymbolObject("extadd_pairwise_s_i16x8", "i32x4", 0),
++  0xFD7F: createSymbolObject("extadd_pairwise_u_i16x8", "i32x4", 0),
++  0xFDA0: createSymbolObject("abs", "i32x4", 0),
++  0xFDA1: createSymbolObject("neg", "i32x4", 0),
++  0xFDA3: createSymbolObject("all_true", "i32x4", 0),
++  0xFDA4: createSymbolObject("bitmask", "i32x4", 0),
++  0xFDA7: createSymbolObject("extend_low_s_i16x8", "i32x4", 0),
++  0xFDA8: createSymbolObject("extend_high_s_i16x8", "i32x4", 0),
++  0xFDA9: createSymbolObject("extend_low_u_i16x8", "i32x4", 0),
++  0xFDAA: createSymbolObject("extend_high_u_i16x8", "i32x4", 0),
++  0xFDAB: createSymbolObject("shl", "i32x4", 0),
++  0xFDAC: createSymbolObject("shr_s", "i32x4", 0),
++  0xFDAD: createSymbolObject("shr_u", "i32x4", 0),
++  0xFDAE: createSymbolObject("add", "i32x4", 0),
++  0xFDB1: createSymbolObject("sub", "i32x4", 0),
++  0xFDB5: createSymbolObject("mul", "i32x4", 0),
++  0xFDB6: createSymbolObject("min_s", "i32x4", 0),
++  0xFDB7: createSymbolObject("min_u", "i32x4", 0),
++  0xFDB8: createSymbolObject("max_s", "i32x4", 0),
++  0xFDB9: createSymbolObject("max_u", "i32x4", 0),
++  0xFDBA: createSymbolObject("dot_s_i16x8", "i32x4", 0),
++  0xFDBB: illegalop,
++  0xFDBC: createSymbolObject("extmul_low_s_i16x8", "i32x4", 0),
++  0xFDBD: createSymbolObject("extmul_high_s_i16x8", "i32x4", 0),
++  0xFDBE: createSymbolObject("extmul_low_u_i16x8", "i32x4", 0),
++  0xFDBF: createSymbolObject("extmul_high_u_i16x8", "i32x4", 0),
++
++  0xFDC0: createSymbolObject("abs", "i64x2", 0),
++  0xFDC1: createSymbolObject("neg", "i64x2", 0),
++  0xFDC2: illegalop,
++  0xFDC3: createSymbolObject("all_true", "i64x2", 0),
++  0xFDC4: createSymbolObject("bitmask", "i64x2", 0),
++  0xFDC7: createSymbolObject("extend_low_s_i32x4", "i64x2", 0),
++  0xFDC8: createSymbolObject("extend_high_s_i32x4", "i64x2", 0),
++  0xFDC9: createSymbolObject("extend_low_u_i32x4", "i64x2", 0),
++  0xFDCA: createSymbolObject("extend_high_u_i32x4", "i64x2", 0),
++  0xFDCB: createSymbolObject("shl", "i64x2", 0),
++  0xFDCC: createSymbolObject("shr_s", "i64x2", 0),
++  0xFDCD: createSymbolObject("shr_u", "i64x2", 0),
++  0xFDCE: createSymbolObject("add", "i64x2", 0),
++  0xFDD1: createSymbolObject("sub", "i64x2", 0),
++  0xFDD5: createSymbolObject("mul", "i64x2", 0),
++  0xFDDC: createSymbolObject("extmul_low_s_i32x4", "i64x2", 0),
++  0xFDDD: createSymbolObject("extmul_high_s_i32x4", "i64x2", 0),
++  0xFDDE: createSymbolObject("extmul_low_u_i32x4", "i64x2", 0),
++  0xFDDF: createSymbolObject("extmul_high_u_i32x4", "i64x2", 0),
++
++  0xFD67: createSymbolObject("ceil", "f32x4", 0),
++  0xFD68: createSymbolObject("floor", "f32x4", 0),
++  0xFD69: createSymbolObject("trunc", "f32x4", 0),
++  0xFD6A: createSymbolObject("nearest", "f32x4", 0),
++  0xFDE0: createSymbolObject("abs", "f32x4", 0),
++  0xFDE1: createSymbolObject("neg", "f32x4", 0),
++  0xFDE3: createSymbolObject("sqrt", "f32x4", 0),
++  0xFDE4: createSymbolObject("add", "f32x4", 0),
++  0xFDE5: createSymbolObject("sub", "f32x4", 0),
++  0xFDE6: createSymbolObject("mul", "f32x4", 0),
++  0xFDE7: createSymbolObject("div", "f32x4", 0),
++  0xFDE8: createSymbolObject("min", "f32x4", 0),
++  0xFDE9: createSymbolObject("max", "f32x4", 0),
++  0xFDEA: createSymbolObject("pmin", "f32x4", 0),
++  0xFDEB: createSymbolObject("pmax", "f32x4", 0),
++
++  0xFD74: createSymbolObject("ceil", "f64x2", 0),
++  0xFD75: createSymbolObject("floor", "f64x2", 0),
++  0xFD7A: createSymbolObject("trunc", "f64x2", 0),
++  0xFD94: createSymbolObject("nearest", "f64x2", 0),
++  0xFDEC: createSymbolObject("abs", "f64x2", 0),
++  0xFDED: createSymbolObject("neg", "f64x2", 0),
++  0xFDEF: createSymbolObject("sqrt", "f64x2", 0),
++  0xFDF0: createSymbolObject("add", "f64x2", 0),
++  0xFDF1: createSymbolObject("sub", "f64x2", 0),
++  0xFDF2: createSymbolObject("mul", "f64x2", 0),
++  0xFDF3: createSymbolObject("div", "f64x2", 0),
++  0xFDF4: createSymbolObject("min", "f64x2", 0),
++  0xFDF5: createSymbolObject("max", "f64x2", 0),
++  0xFDF6: createSymbolObject("pmin", "f64x2", 0),
++  0xFDF7: createSymbolObject("pmax", "f64x2", 0),
++
++  0xFD5E: createSymbolObject("demote_zero_f64x2", "f32x4", 0),
++  0xFD5F: createSymbolObject("promote_low_f32x4", "f64x2", 0),
++  0xFDF8: createSymbolObject("trunc_sat_f32x4_s", "i32x4", 0),
++  0xFDF9: createSymbolObject("trunc_sat_f32x4_u", "i32x4", 0),
++  0xFDFA: createSymbolObject("convert_s_i32x4", "f32x4", 0),
++  0xFDFB: createSymbolObject("convert_u_i32x4", "f32x4", 0),
++  0xFDFC: createSymbolObject("trunc_sat_s_zero_f64x2", "i32x4", 0),
++  0xFDFD: createSymbolObject("trunc_sat_u_zero_f64x2", "i32x4", 0),
++  0xFDFE: createSymbolObject("convert_low_s_i32x4", "f64x2", 0),
++  0xFDFF: createSymbolObject("convert_high_s_i32x4", "f64x2", 0),
 +
 +  // The following single-byte opcodes are NOT assigned in core, and not valid
 +  // single-byte encodings for SIMD/atomics/gc either (those use FD/FE/FB/FC prefixes):
